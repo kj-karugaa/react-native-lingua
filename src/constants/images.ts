@@ -6,6 +6,8 @@ import androidIconBackground from "@/assets/images/android-icon-background.png";
 import mascotLogo from "@/assets/images/moscot-logo.png";
 import mascot from "@/assets/images/mascot-welcome.png";
 
+import earth from "@/assets/images/earth.png";
+
 export const images = {
   icon,
   favicon,
@@ -14,4 +16,5 @@ export const images = {
   androidIconBackground,
   mascotLogo,
   mascot,
+  earth,
 };
