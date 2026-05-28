@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   StyleSheet,
@@ -11,12 +11,20 @@ import { useRouter } from 'expo-router';
 import { View, Text, ScrollView } from '@/tw';
 import { languages } from '@/data/languages';
 import type { Language } from '@/types/learning';
+import { useLearningStore } from '@/store/learning';
 
 export default function LanguageSelectionScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedLanguage = useLearningStore((s) => s.selectedLanguage);
+  const setSelectedLanguage = useLearningStore((s) => s.setSelectedLanguage);
+  const [selectedId, setSelectedId] = useState<string | null>(selectedLanguage?.id ?? null);
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    setSelectedId(selectedLanguage?.id ?? null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLanguage?.id]);
 
   const filtered = languages.filter((lang) =>
     lang.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -29,9 +37,13 @@ export default function LanguageSelectionScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       {/* Header */}
       <View className="flex-row items-center px-5 pt-2 pb-3">
-        <RNPressable onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={styles.backArrow}>‹</Text>
-        </RNPressable>
+        {selectedLanguage ? (
+          <RNPressable onPress={() => router.back()} style={styles.backBtn}>
+            <Text style={styles.backArrow}>‹</Text>
+          </RNPressable>
+        ) : (
+          <RNView style={styles.backBtn} />
+        )}
         <Text className="flex-1 text-center h3">Choose a language</Text>
         <RNView style={styles.backBtn} />
       </View>
@@ -54,7 +66,11 @@ export default function LanguageSelectionScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerClassName="px-4 pt-3 pb-4"
       >
-        <Text className="h4 mb-3">Popular</Text>
+        {search.trim().length === 0 ? (
+          <Text className="h4 mb-3">Popular</Text>
+        ) : (
+          <Text className="h4 mb-3">Languages</Text>
+        )}
 
         {filtered.map((lang: Language) => {
           const isSelected = selectedId === lang.id;
@@ -94,11 +110,16 @@ export default function LanguageSelectionScreen() {
       </ScrollView>
 
       {/* Confirm button */}
-      <RNView style={[styles.btnWrapper, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+      <RNView style={[styles.btnWrapper, { paddingBottom: Math.max(insets.bottom, 16) }]}> 
         <RNPressable
           style={[styles.confirmBtn, !selectedId && styles.btnDisabled]}
           disabled={!selectedId}
-          onPress={() => router.back()}
+          onPress={() => {
+            if (selectedLang) {
+              setSelectedLanguage(selectedLang);
+            }
+            router.replace('/');
+          }}
         >
           <Text style={styles.confirmBtnText}>
             {selectedLang ? `Continue with ${selectedLang.name}` : 'Select a language'}
@@ -108,7 +129,6 @@ export default function LanguageSelectionScreen() {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
