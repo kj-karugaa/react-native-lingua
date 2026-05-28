@@ -66,6 +66,7 @@ export interface Lesson {
   title: string;
   description: string;
   xpReward: number;
+  image?: string;
   goals: string[];
   activities: Activity[];
   aiTeacherPrompt: string;

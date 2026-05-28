@@ -132,7 +132,7 @@ export default function VerificationModal({
           {/* Resend */}
           <View className="flex-row justify-center mt-6">
             <Text className="body-sm text-text-secondary">Didn't receive code? </Text>
-            <Pressable onPress={() => { setCode(''); posthog.capture('verification_code_resent', { email }); onResend(); }}>
+            <Pressable onPress={() => { setCode(''); posthog.capture('verification_code_resent'); onResend(); }}>
               <Text className="body-sm text-lingua-purple font-poppins-semibold">Resend</Text>
             </Pressable>
           </View>

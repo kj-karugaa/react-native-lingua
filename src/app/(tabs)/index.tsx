@@ -9,6 +9,7 @@ import { getLessonsByLanguage } from '@/data/lessons';
 import { getUnitsByLanguage } from '@/data/units';
 import { colors } from '@/theme/colors';
 import { usePostHog } from 'posthog-react-native';
+import { useRouter } from 'expo-router';
 
 const DAILY_GOAL_XP = 20;
 
@@ -52,6 +53,7 @@ const PLAN_ITEMS = [
 
 export default function HomeScreen() {
   const posthog = usePostHog();
+  const router = useRouter();
   const { user } = useUser();
   const { selectedLanguage, dailyXP: xpToday, streak, completedLessons } = useLearningStore();
 
@@ -86,19 +88,26 @@ export default function HomeScreen() {
       >
         {/* ── Header ─────────────────────────────────── */}
         <View className="flex-row items-center justify-between">
-          <View className="flex-row items-center gap-2">
+          <TouchableOpacity
+            style={styles.languagePicker}
+            activeOpacity={0.7}
+            onPress={() => router.push('/language-selection')}
+          >
             {selectedLanguage ? (
               <Image
                 source={{ uri: selectedLanguage.flag }}
                 className="w-8 h-8 rounded-full"
               />
             ) : (
-              <View className="w-8 h-8 rounded-full bg-border" />
+              <View className="w-8 h-8 rounded-full bg-border items-center justify-center">
+                <Ionicons name="globe-outline" size={18} color={colors.inkLight} />
+              </View>
             )}
             <Text className="font-poppins-semibold text-[17px] text-text-primary">
               {greeting}, {firstName}! 👋
             </Text>
-          </View>
+            <Ionicons name="chevron-down" size={14} color={colors.inkLight} />
+          </TouchableOpacity>
 
           <View className="flex-row items-center gap-3">
             <View className="flex-row items-center gap-1">
@@ -155,10 +164,12 @@ export default function HomeScreen() {
               </Text>
               <TouchableOpacity
                 style={styles.continueButton}
-                onPress={() => posthog.capture('continue_learning_tapped', {
-                  language_id: selectedLanguage?.id,
-                  language_name: selectedLanguage?.name,
-                })}
+                onPress={() => {
+                  posthog.capture('continue_learning_tapped', {
+                    language_id: selectedLanguage?.id,
+                    language_name: selectedLanguage?.name,
+                  });
+                }}
               >
                 <Text className="font-poppins-bold text-[14px] text-lingua-purple">
                   Continue
@@ -190,10 +201,13 @@ export default function HomeScreen() {
             {planItems.map((item, index) => (
               <TouchableOpacity
                 key={item.id}
-                onPress={() => posthog.capture('today_plan_item_tapped', {
-                  item_id: item.id,
-                  completed: item.completed ?? false,
-                })}
+                activeOpacity={0.7}
+                onPress={() => {
+                  posthog.capture('today_plan_item_tapped', {
+                    item_id: item.id,
+                    completed: item.completed ?? false,
+                  });
+                }}
               >
                 <View className="flex-row items-center px-4 py-3 gap-3">
                   <View
@@ -250,7 +264,9 @@ export default function HomeScreen() {
             />
             <TouchableOpacity
               style={styles.videoButton}
-              onPress={() => posthog.capture('ai_video_call_tapped')}
+              onPress={() => {
+                posthog.capture('ai_video_call_tapped');
+              }}
             >
               <Ionicons name="videocam" size={18} color="#fff" />
             </TouchableOpacity>
@@ -265,6 +281,11 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.white,
+  },
+  languagePicker: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   // TouchableOpacity — not supported by NativeWind className (AGENTS.md exception)
   continueButton: {

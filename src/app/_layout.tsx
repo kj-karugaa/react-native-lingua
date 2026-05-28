@@ -19,9 +19,14 @@ function ScreenTracker() {
 
   useEffect(() => {
     if (previousPathname.current !== pathname) {
+      // Only allowlist safe params
+      const safeKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'ref'];
+      const safeParams = Object.fromEntries(
+        Object.entries(params).filter(([key]) => safeKeys.includes(key))
+      );
       posthog.screen(pathname, {
         previous_screen: previousPathname.current ?? null,
-        ...params,
+        ...safeParams,
       });
       previousPathname.current = pathname;
     }

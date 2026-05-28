@@ -3,7 +3,12 @@ import Constants from 'expo-constants';
 
 const apiKey = Constants.expoConfig?.extra?.posthogProjectToken as string | undefined;
 const host = Constants.expoConfig?.extra?.posthogHost as string | undefined;
-const isConfigured = !!apiKey && apiKey !== 'phc_your_project_token_here';
+const isConfigured =
+  !!apiKey &&
+  !!host &&
+  apiKey !== 'phc_your_project_token_here' &&
+  host !== 'https://app.posthog.com' &&
+  host !== 'ph_your_instance_host_here';
 
 if (!isConfigured && __DEV__) {
   console.warn('PostHog project token not configured. Set POSTHOG_PROJECT_TOKEN in .env to enable analytics.');
