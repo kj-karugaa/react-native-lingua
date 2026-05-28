@@ -41,10 +41,12 @@ export default function SignInScreen() {
       return;
     }
     if (signIn.status === 'complete') {
-      const userId = signIn.createdSessionId ?? email;
-      posthog.identify(userId, { $set: { email } });
-      posthog.capture('user_signed_in', { method: 'email_otp' });
       await signIn.finalize();
+      const { user } = useUser();
+      if (user) {
+        posthog.identify(user.id, { $set: { email } });
+      }
+      posthog.capture('user_signed_in', { method: 'email_otp' });
     }
     setVerifyLoading(false);
   };

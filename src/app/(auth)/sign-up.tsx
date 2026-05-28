@@ -31,7 +31,7 @@ export default function SignUpScreen() {
     if (error) return;
     const { error: sendError } = await signUp.verifications.sendEmailCode();
     if (sendError) return;
-    posthog.capture('user_signed_up', { email });
+    posthog.capture('user_signed_up', {});
     setVerifyError('');
     setShowVerification(true);
   };
