@@ -9,6 +9,7 @@ import {
   ScrollView as RNScrollView,
   TextInput as RNTextInput,
   TouchableHighlight as RNTouchableHighlight,
+  Image as RNImage,
   StyleSheet,
 } from "react-native";
 
@@ -55,6 +56,10 @@ export const AnimatedScrollView = (
     className: "style",
     contentContainerClassName: "contentContainerStyle",
   });
+
+export const Image = (props: React.ComponentProps<typeof RNImage> & { className?: string }) =>
+  useCssElement(RNImage, props, { className: "style" });
+Image.displayName = "CSS(Image)";
 
 export const Link = (props: React.ComponentProps<typeof RouterLink> & { className?: string }) =>
   useCssElement(RouterLink, props, { className: "style" });
