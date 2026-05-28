@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { View, Text, Pressable } from '@/tw';
+import { usePostHog } from 'posthog-react-native';
 
 interface Props {
   visible: boolean;
@@ -29,6 +30,7 @@ export default function VerificationModal({
   error,
   loading = false,
 }: Props) {
+  const posthog = usePostHog();
   const [code, setCode] = useState('');
   const inputRef = useRef<RNTextInput>(null);
 
@@ -130,7 +132,7 @@ export default function VerificationModal({
           {/* Resend */}
           <View className="flex-row justify-center mt-6">
             <Text className="body-sm text-text-secondary">Didn't receive code? </Text>
-            <Pressable onPress={() => { setCode(''); onResend(); }}>
+            <Pressable onPress={() => { setCode(''); posthog.capture('verification_code_resent', { email }); onResend(); }}>
               <Text className="body-sm text-lingua-purple font-poppins-semibold">Resend</Text>
             </Pressable>
           </View>

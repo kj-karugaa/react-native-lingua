@@ -3,11 +3,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { View, Text, Pressable, Image } from '@/tw';
 import { images } from '@/constants/images';
+import { usePostHog } from 'posthog-react-native';
 
 const MASCOT_SIZE = Dimensions.get('window').width * 0.78;
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const posthog = usePostHog();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -55,7 +57,13 @@ export default function OnboardingScreen() {
 
       {/* Get Started button */}
       <View className="px-6 pb-6">
-        <Pressable className="btn-primary" onPress={() => router.push('/(auth)/sign-up')}>
+        <Pressable
+          className="btn-primary"
+          onPress={() => {
+            posthog.capture('onboarding_get_started_tapped');
+            router.push('/(auth)/sign-up');
+          }}
+        >
           <View className="flex-row items-center justify-center relative">
             <Text className="btn-primary-text">Get Started</Text>
             <Text className="absolute right-0 text-white text-[22px]">›</Text>

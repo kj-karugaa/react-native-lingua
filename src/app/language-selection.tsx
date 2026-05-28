@@ -12,9 +12,11 @@ import {
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { usePostHog } from 'posthog-react-native';
 
 export default function LanguageSelectionScreen() {
   const router = useRouter();
+  const posthog = usePostHog();
   const insets = useSafeAreaInsets();
   const selectedLanguage = useLearningStore((s) => s.selectedLanguage);
   const setSelectedLanguage = useLearningStore((s) => s.setSelectedLanguage);
@@ -117,6 +119,10 @@ export default function LanguageSelectionScreen() {
           onPress={() => {
             if (selectedLang) {
               setSelectedLanguage(selectedLang);
+              posthog.capture('language_selected', {
+                language_id: selectedLang.id,
+                language_name: selectedLang.name,
+              });
             }
             router.replace('/');
           }}
