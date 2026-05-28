@@ -6,13 +6,16 @@ interface Props {
   label: string;
   iconColor: string;
   onPress?: () => void;
+  disabled?: boolean;
 }
 
-export default function SocialButton({ iconName, label, iconColor, onPress }: Props) {
+export default function SocialButton({ iconName, label, iconColor, onPress, disabled }: Props) {
   return (
     <Pressable
       className="flex-row items-center justify-center border-[1.5px] border-border rounded-[16px] py-[14px] bg-white"
       onPress={onPress}
+      disabled={disabled}
+      style={{ opacity: disabled ? 0.6 : 1 }}
     >
       <View className="w-6 items-center">
         <Ionicons name={iconName} size={22} color={iconColor} />

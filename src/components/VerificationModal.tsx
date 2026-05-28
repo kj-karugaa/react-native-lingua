@@ -6,18 +6,29 @@ import {
   StyleSheet,
   TextInput as RNTextInput,
   Pressable as RNPressable,
+  ActivityIndicator,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import { View, Text, Pressable } from '@/tw';
 
 interface Props {
   visible: boolean;
   email: string;
   onClose: () => void;
+  onVerify: (code: string) => Promise<void>;
+  onResend: () => Promise<void>;
+  error?: string;
+  loading?: boolean;
 }
 
-export default function VerificationModal({ visible, email, onClose }: Props) {
-  const router = useRouter();
+export default function VerificationModal({
+  visible,
+  email,
+  onClose,
+  onVerify,
+  onResend,
+  error,
+  loading = false,
+}: Props) {
   const [code, setCode] = useState('');
   const inputRef = useRef<RNTextInput>(null);
 
@@ -35,10 +46,7 @@ export default function VerificationModal({ visible, email, onClose }: Props) {
     const digits = text.replace(/[^0-9]/g, '').slice(0, 6);
     setCode(digits);
     if (digits.length === 6) {
-      setTimeout(() => {
-        onClose();
-        router.replace('/');
-      }, 300);
+      onVerify(digits);
     }
   };
 
@@ -101,13 +109,28 @@ export default function VerificationModal({ visible, email, onClose }: Props) {
               maxLength={6}
               style={styles.hiddenInput}
               caretHidden
+              editable={!loading}
             />
           </RNPressable>
+
+          {/* Loading indicator */}
+          {loading && (
+            <View className="items-center mt-4">
+              <ActivityIndicator color="#6c4ef5" />
+            </View>
+          )}
+
+          {/* Error message */}
+          {error ? (
+            <Text className="body-sm text-center mt-4" style={{ color: '#e53e3e' }}>
+              {error}
+            </Text>
+          ) : null}
 
           {/* Resend */}
           <View className="flex-row justify-center mt-6">
             <Text className="body-sm text-text-secondary">Didn't receive code? </Text>
-            <Pressable>
+            <Pressable onPress={() => { setCode(''); onResend(); }}>
               <Text className="body-sm text-lingua-purple font-poppins-semibold">Resend</Text>
             </Pressable>
           </View>
