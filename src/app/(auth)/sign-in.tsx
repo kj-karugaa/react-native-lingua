@@ -8,9 +8,11 @@ import { View, Text, Pressable, TextInput, Image, ScrollView } from '@/tw';
 import { images } from '@/constants/images';
 import SocialButton from '@/components/SocialButton';
 import VerificationModal from '@/components/VerificationModal';
+import { usePostHog } from 'posthog-react-native';
 
 export default function SignInScreen() {
   const router = useRouter();
+  const posthog = usePostHog();
   const { signIn, errors, fetchStatus } = useSignIn();
   const { startSSOFlow } = useSSO();
 
@@ -39,6 +41,9 @@ export default function SignInScreen() {
       return;
     }
     if (signIn.status === 'complete') {
+      const userId = signIn.createdSessionId ?? email;
+      posthog.identify(userId, { $set: { email } });
+      posthog.capture('user_signed_in', { method: 'email_otp' });
       await signIn.finalize();
     }
     setVerifyLoading(false);
@@ -51,11 +56,13 @@ export default function SignInScreen() {
 
   const handleSSOSignIn = async (strategy: 'oauth_google' | 'oauth_apple') => {
     if (ssoLoading) return;
-    setSsoLoading(strategy === 'oauth_google' ? 'google' : 'apple');
+    const provider = strategy === 'oauth_google' ? 'google' : 'apple';
+    setSsoLoading(provider);
     try {
       const { createdSessionId, setActive } = await startSSOFlow({ strategy });
       if (createdSessionId && setActive) {
         await setActive({ session: createdSessionId });
+        posthog.capture('sso_sign_in_completed', { provider, is_sign_up: false });
         router.replace('/');
       }
     } catch {

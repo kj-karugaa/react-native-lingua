@@ -1,4 +1,4 @@
-import { View, Pressable, Text, Dimensions, StyleSheet } from 'react-native';
+import { View, Pressable, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   useSharedValue,
@@ -25,7 +25,7 @@ const TIMING_CONFIG = { duration: 220, easing: Easing.out(Easing.cubic) };
 
 export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const { width } = Dimensions.get('window');
+  const { width } = useWindowDimensions();
   const tabWidth = width / state.routes.length;
 
   const circleX = useSharedValue(

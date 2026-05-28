@@ -8,6 +8,7 @@ import { images } from '@/constants/images';
 import { getLessonsByLanguage } from '@/data/lessons';
 import { getUnitsByLanguage } from '@/data/units';
 import { colors } from '@/theme/colors';
+import { usePostHog } from 'posthog-react-native';
 
 const DAILY_GOAL_XP = 20;
 
@@ -50,8 +51,9 @@ const PLAN_ITEMS = [
 ];
 
 export default function HomeScreen() {
+  const posthog = usePostHog();
   const { user } = useUser();
-  const { selectedLanguage, dailyXP, streak, completedLessons } = useLearningStore();
+  const { selectedLanguage, dailyXP: xpToday, streak, completedLessons } = useLearningStore();
 
   const firstName = user?.firstName ?? 'Friend';
   const greeting = selectedLanguage
@@ -63,7 +65,8 @@ export default function HomeScreen() {
   const firstUnit = languageUnits[0];
   const firstLesson = languageLessons[0];
 
-  const progressPercent = Math.min((dailyXP / DAILY_GOAL_XP) * 100, 100);
+  const dailyGoal = DAILY_GOAL_XP;
+  const xpProgress = dailyGoal > 0 ? Math.min((xpToday / dailyGoal) * 100, 100) : 0;
 
   const planItems = [
     {
@@ -121,12 +124,12 @@ export default function HomeScreen() {
               Daily goal
             </Text>
             <Text className="font-poppins-bold text-[22px] text-text-primary">
-              {dailyXP} / {DAILY_GOAL_XP} XP
+              {xpToday} / {dailyGoal} XP
             </Text>
             <View className="h-[7px] bg-border rounded mt-[6px] overflow-hidden">
               <View
                 className="h-full bg-streak rounded"
-                style={{ width: `${progressPercent}%` as any }}
+                style={{ width: `${xpProgress}%` as any }}
               />
             </View>
           </View>
@@ -150,7 +153,13 @@ export default function HomeScreen() {
               <Text className="font-poppins text-[13px] text-white/80">
                 A1 · {firstUnit ? `Unit ${firstUnit.order}` : 'Unit 1'}
               </Text>
-              <TouchableOpacity style={styles.continueButton}>
+              <TouchableOpacity
+                style={styles.continueButton}
+                onPress={() => posthog.capture('continue_learning_tapped', {
+                  language_id: selectedLanguage?.id,
+                  language_name: selectedLanguage?.name,
+                })}
+              >
                 <Text className="font-poppins-bold text-[14px] text-lingua-purple">
                   Continue
                 </Text>
@@ -179,7 +188,13 @@ export default function HomeScreen() {
 
           <View className="bg-white rounded-2xl border border-border overflow-hidden">
             {planItems.map((item, index) => (
-              <View key={item.id}>
+              <TouchableOpacity
+                key={item.id}
+                onPress={() => posthog.capture('today_plan_item_tapped', {
+                  item_id: item.id,
+                  completed: item.completed ?? false,
+                })}
+              >
                 <View className="flex-row items-center px-4 py-3 gap-3">
                   <View
                     className="w-[42px] h-[42px] rounded-xl items-center justify-center"
@@ -209,7 +224,7 @@ export default function HomeScreen() {
                 {index < planItems.length - 1 && (
                   <View className="h-px bg-border ml-[72px]" />
                 )}
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         </View>
@@ -233,7 +248,10 @@ export default function HomeScreen() {
               source={{ uri: 'https://picsum.photos/seed/teacher42/80/80' }}
               className="w-14 h-14 rounded-full"
             />
-            <TouchableOpacity style={styles.videoButton}>
+            <TouchableOpacity
+              style={styles.videoButton}
+              onPress={() => posthog.capture('ai_video_call_tapped')}
+            >
               <Ionicons name="videocam" size={18} color="#fff" />
             </TouchableOpacity>
           </View>

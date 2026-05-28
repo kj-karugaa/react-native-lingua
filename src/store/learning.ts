@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Language } from '../types/learning';
+import { posthog } from '../lib/posthog';
 
 interface LearningState {
   selectedLanguage: Language | null;
@@ -27,13 +28,25 @@ export const useLearningStore = create<LearningState>()(
       setSelectedLanguage: (language) => set({ selectedLanguage: language }),
       setHasHydrated: (value) => set({ _hasHydrated: value }),
       completeLesson: (lessonId, xpReward) =>
-        set((state) => ({
-          completedLessons: state.completedLessons.includes(lessonId)
-            ? state.completedLessons
-            : [...state.completedLessons, lessonId],
-          xp: state.xp + xpReward,
-          dailyXP: Math.min(state.dailyXP + xpReward, 20),
-        })),
+        set((state) => {
+          if (state.completedLessons.includes(lessonId)) return state;
+          const newDailyXP = Math.min(state.dailyXP + xpReward, 20);
+          const newTotalXP = state.xp + xpReward;
+          posthog.capture('lesson_completed', {
+            lesson_id: lessonId,
+            xp_earned: xpReward,
+            total_xp: newTotalXP,
+            daily_xp: newDailyXP,
+          });
+          if (state.dailyXP < 20 && newDailyXP >= 20) {
+            posthog.capture('daily_goal_reached', { total_xp: newTotalXP });
+          }
+          return {
+            completedLessons: [...state.completedLessons, lessonId],
+            xp: newTotalXP,
+            dailyXP: newDailyXP,
+          };
+        }),
     }),
     {
       name: 'learning-storage',
