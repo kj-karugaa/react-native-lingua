@@ -35,7 +35,7 @@ export const languages: Language[] = [
     flag: "https://flagcdn.com/w80/kr.png",
     learnerCount: "9.3M",
     description: "The language of K-pop, dramas, and innovation",
-    totalUnits: 1,
+    totalUnits: 0,
   },
   {
     id: "de",
@@ -44,7 +44,7 @@ export const languages: Language[] = [
     flag: "https://flagcdn.com/w80/de.png",
     learnerCount: "8.1M",
     description: "The language of philosophy, engineering, and culture",
-    totalUnits: 1,
+    totalUnits: 0,
   },
   {
     id: "zh",
@@ -53,7 +53,7 @@ export const languages: Language[] = [
     flag: "https://flagcdn.com/w80/cn.png",
     learnerCount: "7.4M",
     description: "The most spoken language in the world",
-    totalUnits: 1,
+    totalUnits: 0,
   },
   {
     id: "pt",
