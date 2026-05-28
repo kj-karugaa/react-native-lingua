@@ -55,7 +55,7 @@ export default function OnboardingScreen() {
 
       {/* Get Started button */}
       <View className="px-6 pb-6">
-        <Pressable className="btn-primary" onPress={() => router.replace('/')}>
+        <Pressable className="btn-primary" onPress={() => router.push('/(auth)/sign-up')}>
           <View className="flex-row items-center justify-center relative">
             <Text className="btn-primary-text">Get Started</Text>
             <Text className="absolute right-0 text-white text-[22px]">›</Text>
