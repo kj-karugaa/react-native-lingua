@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  StyleSheet,
-  View as RNView,
-  Image as RNImage,
-  TextInput as RNTextInput,
-  Pressable as RNPressable,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { View, Text, ScrollView } from '@/tw';
 import { languages } from '@/data/languages';
-import type { Language } from '@/types/learning';
 import { useLearningStore } from '@/store/learning';
+import { ScrollView, Text, View } from '@/tw';
+import type { Language } from '@/types/learning';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import {
+  Image as RNImage,
+  Pressable as RNPressable,
+  TextInput as RNTextInput,
+  View as RNView,
+  StyleSheet,
+} from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function LanguageSelectionScreen() {
   const router = useRouter();
@@ -110,7 +110,7 @@ export default function LanguageSelectionScreen() {
       </ScrollView>
 
       {/* Confirm button */}
-      <RNView style={[styles.btnWrapper, { paddingBottom: Math.max(insets.bottom, 16) }]}> 
+      <RNView style={[styles.btnWrapper, { paddingBottom: Math.max(insets.bottom, 16) }]}>
         <RNPressable
           style={[styles.confirmBtn, !selectedId && styles.btnDisabled]}
           disabled={!selectedId}
